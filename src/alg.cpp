@@ -3,121 +3,83 @@
 #include <map>
 #include "tstack.h"
 
-int prior(char ch) {
-    if (ch == '(') {
-        return 1;
-    }
-    if (ch == '+' || ch == '-') {
-        return 2;
-    }
-    if (ch == '*' || ch == '/') {
-        return 3;
-    }
-    return -1;
-}
-
 std::string infx2pstfx(std::string inf) {
-    TStack <char, 100> st;
+  // добавьте код
+    TStack<char, 20> opsStack;
     std::string post;
-    for (int k = 0; k < inf.size(); k++) {
-        int pr = prior(inf[k]);
-        if ((prior(inf[k]) == -1) && (inf[k] != ')')) {
-            if (!post.empty() && prior(inf[k - 1]) != -1) {
-                post.push_back(' ');
-            }
-            post.push_back(inf[k]);
-            
-        } else if ((prior(inf[k]) > prior(st.get()))
-                   || (st.isEmpty()) || (inf[k] == '(')) {
-            st.push(inf[k]);
+    std::map<char, int> ops;
+    ops['('] = 0;
+    ops[')'] = 0;
+    ops['+'] = 1;
+    ops['-'] = 1;
+    ops['*'] = 2;
+    ops['/'] = 2;
+    for (char c : inf) {
+        if (ops.find(c) == ops.end()) {
+            post += c;
+            post += ' ';
         } else {
-            if (inf[k] == ')') {
-                while (st.get() != '(') {
-                    post.push_back(' ');
-                    post.push_back(st.get());
-                    st.pop();
+            if (c == ')') {
+                while (opsStack.get() != '(') {
+                    post += opsStack.get();
+                    post += ' ';
+                    opsStack.pop();
                 }
-                st.pop();
+                opsStack.pop();
+            } else if (c == '(' || opsStack.isEmpty()) {
+                opsStack.push(c);
+            } else if (ops[c] > ops[opsStack.get()]) {
+                opsStack.push(c);
             } else {
-                while (prior(st.get()) >= prior(inf[k])) {
-                    post.push_back(' ');
-                    post.push_back(st.get());
-                    st.pop();
+                while (ops[opsStack.get()] >= ops[c] && !opsStack.isEmpty()) {
+                    post += opsStack.get();
+                    post += ' ';
+                    opsStack.pop();
                 }
-                st.push(inf[k]);
+                opsStack.push(c);
             }
         }
     }
-    while (!st.isEmpty()) {
-        post.push_back(' ');
-        if (st.get() != '(') {
-            post.push_back(st.get());
-        }
-        st.pop();
+    while (!opsStack.isEmpty()) {
+        post += opsStack.get();
+        post += ' ';
+        opsStack.pop();
     }
+    post.pop_back();
     return post;
 }
-int convert(char count) {
-    int i = 0;
-    if (count >= '0' && count <= '9') {
-        for (char k = '0'; k <= '9'; k++, i++) {
-            if (count == k)
-                return i;
-        }
-    }
-    return -1;
-}
 
-int eval(std::string pref) {
-    TStack<int, 100> st2;
-    int oper = 0;
-  for (int l = 0; l < pref.size(); l++) {
-       if (convert(pref[l]) > -1) {
-            oper = oper * 10 + convert(pref[l]);;
+int eval(std::string post) {
+    TStack<int, 20> operandsStack;
+    std::string ops = "+-*/";
+
+    for (char c : post) {
+        if (c == ' ') continue;
+        std::size_t op = ops.find(c);
+        if (op == std::string::npos) {
+            operandsStack.push(c & 0xF);
         } else {
-            if (oper != 0) {
-                st2.push(oper);
-                oper = 0;
-            }
-            switch (pref[l]) {
+            int arg2 = operandsStack.get();
+            operandsStack.pop();
+            int arg1 = operandsStack.get();
+            operandsStack.pop();
+            int result;
+            switch (ops[op]) {
             case '+':
-            {
-                int op1 = st2.get();
-                st2.pop();
-                int op2 = st2.get();
-                st2.pop();
-                st2.push(op1 + op2);
+                result = arg1 + arg2;
                 break;
-            }
             case '-':
-            {
-                int op1 = st2.get();
-                st2.pop();
-                int op2 = st2.get();
-                st2.pop();
-                st2.push(op2 - op1);
+                result = arg1 - arg2;
                 break;
-            }
             case '*':
-            {
-                int op1 = st2.get();
-                st2.pop();
-                int op2 = st2.get();
-                st2.pop();
-                st2.push(op1 * op2);
+                result = arg1 * arg2;
                 break;
-            }
             case '/':
-            {
-                int op1 = st2.get();
-                st2.pop();
-                int op2 = st2.get();
-                st2.pop();
-                st2.push(op2 / op1);
+                result = arg1 / arg2;
                 break;
             }
-            }
+            operandsStack.push(result);
         }
     }
-    return st2.get();
+    return operandsStack.get();
 }
