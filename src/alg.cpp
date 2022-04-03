@@ -2,7 +2,6 @@
 #include <string>
 #include <map>
 #include "tstack.h"
-
 int prior(char ch) {
     if (ch == '(') {
         return 1;
@@ -15,7 +14,6 @@ int prior(char ch) {
     }
     return -1;
 }
-
 std::string infx2pstfx(std::string inf) {
     TStack <char, 100> st;
     std::string post;
@@ -67,7 +65,6 @@ int convert(char count) {
     }
     return -1;
 }
-
 int eval(std::string pref) {
     TStack<int, 100> st2;
     int oper = 0;
