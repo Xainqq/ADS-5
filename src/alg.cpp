@@ -14,29 +14,29 @@ std::string infx2pstfx(std::string inf) {
     ops['-'] = 1;
     ops['*'] = 2;
     ops['/'] = 2;
-    for (char c : inf) {
-        if (ops.find(c) == ops.end()) {
-            post += c;
+    for (char d : inf) {
+        if (ops.find(d) == ops.end()) {
+            post += d;
             post += ' ';
         } else {
-            if (c == ')') {
+            if (d == ')') {
                 while (opsStack.get() != '(') {
                     post += opsStack.get();
                     post += ' ';
                     opsStack.pop();
                 }
                 opsStack.pop();
-            } else if (c == '(' || opsStack.isEmpty()) {
-                opsStack.push(c);
-            } else if (ops[c] > ops[opsStack.get()]) {
-                opsStack.push(c);
+            } else if (ops[d] > ops[opsStack.get()]) {
+                opsStack.push(d);
+            } else if (d == '(' || opsStack.isEmpty()) {
+                opsStack.push(d);
             } else {
-                while (ops[opsStack.get()] >= ops[c] && !opsStack.isEmpty()) {
+                while (ops[opsStack.get()] >= ops[d] && !opsStack.isEmpty()) {
                     post += opsStack.get();
                     post += ' ';
                     opsStack.pop();
                 }
-                opsStack.push(c);
+                opsStack.push(d);
             }
         }
     }
@@ -53,11 +53,11 @@ int eval(std::string post) {
     TStack<int, 20> operandsStack;
     std::string ops = "+-*/";
 
-    for (char c : post) {
-        if (c == ' ') continue;
-        std::size_t op = ops.find(c);
+    for (char d : post) {
+        if (d == ' ') continue;
+        std::size_t op = ops.find(d);
         if (op == std::string::npos) {
-            operandsStack.push(c & 0xF);
+            operandsStack.push(d & 0xF);
         } else {
             int arg2 = operandsStack.get();
             operandsStack.pop();
