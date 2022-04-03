@@ -24,7 +24,6 @@ std::string infx2pstfx(std::string inf) {
                 post.push_back(' ');
             }
             post.push_back(inf[k]);
-          
         } else if ((prior(inf[k]) > prior(st.get()))
                    || (st.isEmpty()) || (inf[k] == '(')) {
             st.push(inf[k]);
